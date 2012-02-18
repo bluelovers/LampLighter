@@ -1718,6 +1718,8 @@ class ApplicationController implements AppControllerInterface {
 
 	protected function set_message( $message ) {
 
+		$param_name = $this->param_name_user_message;
+		$this->params->$param_name = $message;
 		LL::Set_session_message($message);
 		
 		/*
