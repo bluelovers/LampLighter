@@ -1,0 +1,1 @@
+Lamplighter is a fully open source rapid application development framework for PHP based on a Model-View-Controller (MVC) architecture. It is designed to make PHP development faster, more scalable, and more secure.
