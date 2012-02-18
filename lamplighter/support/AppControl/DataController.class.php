@@ -420,38 +420,24 @@ class DataController extends ApplicationController implements DataControllerInte
                 }
 			}
 			catch( UserDataException $e ) {
-				
+
 				$this->method_failed(__FUNCTION__, true); 
 				$render_on_fail = $this->get_flag_render_on_fail($options);
-				
 				$is_ajax = ( isset($options['is_ajax']) ) ? $options['is_ajax'] : $this->is_ajax();
 				
-				if ( $render_on_fail && !$is_ajax ) {
-				
-					if ( $redirect = $this->get_redirect_fail(__FUNCTION__) ) {
-						$this->redirect($redirect);
-					}
-					else {
-	
-						$message = null;
+				$message = null;
 
-						if ( $message = $this->get_message_success('add') ) {
-							$message = LL::Translate($message) . Config::Get('output.newline');
-						}
-				
-						$message .= $e->getMessage();
-				
-						$this->set_message( $message );
-    	        	    //$this->apply_form();
-        	        	if ( !isset($options['render']) || $options['render'] == true ) {
-                        	$this->render();
-        	        	}
-
-					}
+				if ( $message = $this->get_message_fail('add') ) {
+					$message = LL::Translate($message) . Config::Get('output.newline');
 				}
-				else {
+				
+				$message .= $e->getMessage();
+				$this->set_message( $message );
+				
+				if ( !$render_on_fail || $is_ajax ) {
 					throw $e;
 				}
+
 			}
 			catch( Exception $e ) {
 				$this->method_failed(__FUNCTION__, true); 
@@ -463,30 +449,34 @@ class DataController extends ApplicationController implements DataControllerInte
 			
 	    	try {
 				if (  $this->is_postback() ) {
+
+					$options = $this->get_method_options( 'add', $options );
+                	$render_on_fail = $this->get_flag_render_on_fail($options);
+					$render_on_success = $this->get_flag_render_on_success($options);
 								
 					$render_options['form_repopulate'] = false;
 
 					if ( $this->method_failed('add') ) { 
 						
-						$render_options['message'] = $this->get_message_fail('edit');
+						$render_options['message'] = $this->get_message();
 						
-						if ( $redirect = $this->get_redirect_fail('edit') ) {
+						if ( $redirect = $this->get_redirect_fail('add') ) {
 							$this->set_message( $render_options['message'] );
 							$this->redirect($redirect);
 						}
-						else if ( $this->render_on_fail ) {
+						else if ( $render_on_fail ) {
 							$this->render_fail('add', $render_options);
 						}
 					}
 					else {
 						
-						$render_options['message'] = $this->get_message_success('edit');
+						$render_options['message'] = $this->get_message_success('add');
 						
-						if ( $redirect = $this->get_redirect_success('edit') ) {
+						if ( $redirect = $this->get_redirect_success('add') ) {
 							$this->set_message( $render_options['message'] );
 							$this->redirect($redirect);
 						}
-						else if ( $this->render_on_success ) {
+						else if ( $render_on_success ) {
 							$this->render_success('add', $render_options);
 						}
 					}
@@ -637,25 +627,16 @@ class DataController extends ApplicationController implements DataControllerInte
 				$render_on_fail = $this->get_flag_render_on_fail($options);
 				$is_ajax = ( isset($options['is_ajax']) ) ? $options['is_ajax'] : $this->is_ajax();
 				
-				if ( $render_on_fail && !$is_ajax ) {
-					
-					$message = null;
+				$message = null;
 
-					if ( $message = $this->get_message_success('edit') ) {
-						$message = LL::Translate($message) . Config::Get('output.newline');
-					}
-				
-					$message .= $e->getMessage();
-					$this->set_message( $message );
-            	
-            		//$this->apply_form();
-                	
-                	if ( !isset($options['render']) || $options['render'] == true ) {
-	                	$this->render();
-                	}
-                	exit;
+				if ( $message = $this->get_message_fail('edit') ) {
+					$message = LL::Translate($message) . Config::Get('output.newline');
 				}
-				else {
+				
+				$message .= $e->getMessage();
+				$this->set_message( $message );
+				
+				if ( !$render_on_fail || $is_ajax ) {
 					throw $e;
 				}
 			}
@@ -671,17 +652,21 @@ class DataController extends ApplicationController implements DataControllerInte
     	try {
 			if (  $this->is_postback() ) {
 				
+				$options = $this->get_method_options( 'edit', $options );
+                $render_on_fail = $this->get_flag_render_on_fail($options);
+				$render_on_success = $this->get_flag_render_on_success($options);
+												
 				$render_options['form_repopulate'] = true;
 		
 				if ( $this->method_failed('edit') ) { 
 					
-					$render_options['message'] = $this->get_message_fail('edit');
+					$render_options['message'] = $this->get_message();
 					
 					if ( $redirect = $this->get_redirect_fail('edit') ) {
 						$this->set_message( $render_options['message'] );
 						$this->redirect($redirect);
 					}
-					else if ( $this->render_on_fail ) {
+					else if ( $render_on_fail ) {
 						$this->render_fail('edit', $render_options);
 					}
 				}
@@ -692,7 +677,7 @@ class DataController extends ApplicationController implements DataControllerInte
 						$this->set_message( $render_options['message'] );
 						$this->redirect($redirect);
 					}
-					else if ( $this->render_on_success ) {
+					else if ( $render_on_success ) {
 						$this->render_success('edit', $render_options);
 					}
 				}
